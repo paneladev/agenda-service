@@ -13,6 +13,8 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class PacienteRequest {
 
+    private Long id;
+
     @NotBlank(message = "Nome do paciente é obrigatório")
     private String nome;
 
