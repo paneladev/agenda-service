@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 import pdev.com.agenda.api.request.PacienteRequest;
+import pdev.com.agenda.api.response.PacienteCompletoResponse;
 import pdev.com.agenda.api.response.PacienteResponse;
 import pdev.com.agenda.domain.entity.Paciente;
 
@@ -22,6 +23,10 @@ public class PacienteMapper {
 
     public PacienteResponse toPacienteResponse(Paciente paciente) {
         return mapper.map(paciente, PacienteResponse.class);
+    }
+
+    public PacienteCompletoResponse toPacienteCompletoResponse(Paciente paciente) {
+        return mapper.map(paciente, PacienteCompletoResponse.class);
     }
 
     public List<PacienteResponse> toPacienteResponseList(List<Paciente> pacientes) {

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,4 +19,8 @@ public class Paciente {
     private String sobrenome;
     private String email;
     private String cpf;
+
+    @OneToMany
+    @JoinColumn(name = "paciente_id")
+    private List<Endereco> enderecos;
 }

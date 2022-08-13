@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pdev.com.agenda.api.mapper.PacienteMapper;
 import pdev.com.agenda.api.request.PacienteRequest;
+import pdev.com.agenda.api.response.PacienteCompletoResponse;
 import pdev.com.agenda.api.response.PacienteResponse;
 import pdev.com.agenda.domain.entity.Paciente;
 import pdev.com.agenda.domain.service.PacienteService;
@@ -38,14 +39,14 @@ public class PacienteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PacienteResponse> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<PacienteCompletoResponse> buscarPorId(@PathVariable Long id) {
         Optional<Paciente> optPaciente = service.buscarPorId(id);
 
         if (optPaciente.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(mapper.toPacienteResponse(optPaciente.get()));
+        return ResponseEntity.status(HttpStatus.OK).body(mapper.toPacienteCompletoResponse(optPaciente.get()));
     }
 
     @PutMapping("/{id}")
