@@ -8,12 +8,13 @@ import pdev.com.agenda.api.mapper.PacienteMapper;
 import pdev.com.agenda.api.request.PacienteRequest;
 import pdev.com.agenda.api.response.PacienteCompletoResponse;
 import pdev.com.agenda.api.response.PacienteResponse;
-import pdev.com.agenda.domain.entity.Paciente;
 import pdev.com.agenda.domain.service.PacienteService;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,36 +26,41 @@ public class PacienteController {
 
     @PostMapping
     public ResponseEntity<PacienteResponse> salvar(@Valid @RequestBody PacienteRequest request) {
-        Paciente paciente = mapper.toPaciente(request);
-        Paciente pacienteSalvo = service.salvar(paciente);
-        PacienteResponse pacienteResponse = mapper.toPacienteResponse(pacienteSalvo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteResponse);
+        Optional<PacienteResponse> optPaciente = Stream.of(request)
+                .map(mapper::toPaciente)
+                .map(service::salvar)
+                .map(mapper::toPacienteResponse)
+                .findFirst();
+        return ResponseEntity.status(HttpStatus.CREATED).body(optPaciente.get());
     }
 
     @GetMapping
     public ResponseEntity<List<PacienteResponse>> listarTodos() {
-        List<Paciente> pacientes = service.listarTodos();
-        List<PacienteResponse> pacienteResponses = mapper.toPacienteResponseList(pacientes);
+        List<PacienteResponse> pacienteResponses = service.listarTodos()
+                .stream()
+                .map(mapper::toPacienteResponse)
+                .collect(Collectors.toList());
+
         return ResponseEntity.status(HttpStatus.OK).body(pacienteResponses);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PacienteCompletoResponse> buscarPorId(@PathVariable Long id) {
-        Optional<Paciente> optPaciente = service.buscarPorId(id);
-
-        if (optPaciente.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(mapper.toPacienteCompletoResponse(optPaciente.get()));
+        return service.buscarPorId(id)
+                .map(mapper::toPacienteCompletoResponse)
+                .map(pacienteCompletoResponse -> ResponseEntity.status(HttpStatus.OK).body(pacienteCompletoResponse))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PacienteResponse> alterar(@PathVariable Long id, @RequestBody PacienteRequest request) {
-        Paciente paciente = mapper.toPaciente(request);
-        Paciente pacienteSalvo = service.alterar(id, paciente);
-        PacienteResponse pacienteResponse = mapper.toPacienteResponse(pacienteSalvo);
-        return ResponseEntity.status(HttpStatus.OK).body(pacienteResponse);
+        return Stream.of(request)
+                .map(mapper::toPaciente)
+                .map(paciente -> service.alterar(id, paciente))
+                .map(mapper::toPacienteResponse)
+                .map(pacienteResponse -> ResponseEntity.status(HttpStatus.OK).body(pacienteResponse))
+                .findFirst()
+                .get();
     }
 
     @DeleteMapping("/{id}")
