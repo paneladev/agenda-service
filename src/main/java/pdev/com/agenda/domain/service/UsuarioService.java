@@ -13,7 +13,6 @@ import pdev.com.agenda.domain.repository.UsuarioRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -24,14 +23,9 @@ public class UsuarioService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String usuario) throws UsernameNotFoundException {
-        Optional<Usuario> optUsuario = repository.findByUsuario(usuario);
-
-        if (optUsuario.isEmpty()) {
-            throw new UsernameNotFoundException("Usuario não econtrado");
-        }
-        Usuario user = optUsuario.get();
-        return new User(user.getUsuario(), user.getSenha(), new ArrayList<>());
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Usuario usuario = repository.findByUsuario(username).orElseThrow(() -> new UsernameNotFoundException("Usuario não encontrado"));
+        return new User(usuario.getUsuario(), usuario.getSenha(), new ArrayList<>());
     }
 
     public List<Usuario> getAll() {
